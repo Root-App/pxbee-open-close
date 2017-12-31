@@ -61,8 +61,6 @@ void main(void)
 	sys_xbee_init();
 	sys_app_banner();
 
-  gpio_config(SENSOR, GPIO_CFG_PULL_UP_DIS);
-
 	printf("> ");
 
   for (;;) {
@@ -70,21 +68,32 @@ void main(void)
 		/* Interactive menu for action control */
     if(uart_bytes_in_rx_buffer() > 0) {
       uart_read(&option, 1);
-      printf("Got char: %u\n", option);
-      if(option == 49) { /* 1 */
-        int16_t request;
+      printf("Got option: %u\n", option);
 
-        printf("\nRequesting Operating PAN ID (OP)\n");
-        request = xbee_cmd_create(&xdev, "OP");
-        if (request < 0) {
-		      printf( "Error creating request: %d (%" PRIsFAR ") \n", request, strerror( -request));
-	      }
-	      else  {
-	        xbee_cmd_set_callback(request, xbee_cmd_callback, NULL);
-	        xbee_cmd_send(request);
-	      }
-      }
-      else if(option == 50) { /* 2 */
+			if(option == 49 || option == 50 || option == 51) {
+			  int16_t request;
+				switch (option) {
+					case 49:
+	        	printf("Requesting Operating PAN ID (OP)\n");
+	          request = xbee_cmd_create(&xdev, "OP");
+						break;
+					case 50:
+					  printf("Requesting Operating 16-BIT PAN (OI)\n");
+	          request = xbee_cmd_create(&xdev, "OI");
+						break;
+					case 51:
+	  				printf("Requesting Operating PAN ID (MY)\n");
+	          request = xbee_cmd_create(&xdev, "MY");
+						break;
+				}
+				if (request < 0) {
+	      	printf( "Error creating request: %d (%" PRIsFAR ") \n", request, strerror( -request));
+      	} else  {
+        	xbee_cmd_set_callback(request, xbee_cmd_callback, NULL);
+        	xbee_cmd_send(request);
+      	}
+			}
+      else if(option == 115) { /* s */
         // Additionnal XBee settings
         printf("\n Setting additional radio settings: ZS ");
         xbee_cmd_simple(&xdev, "ZS", XBEE_PARAM_ZS);
@@ -100,29 +109,31 @@ void main(void)
         xbee_cmd_simple(&xdev, "EO", XBEE_PARAM_EO);
         printf("AP ");
         xbee_cmd_simple(&xdev, "AP", XBEE_PARAM_AP);
+        printf("AO ");
+        xbee_cmd_simple(&xdev, "AO", XBEE_PARAM_AO);
         printf("KY ");
         xbee_cmd_execute(&xdev, "KY", XBEE_PARAM_KY, (sizeof(XBEE_PARAM_KY) - 1) / sizeof(char));
         printf("WR ");
         xbee_cmd_execute(&xdev, "WR", NULL, 0);
         printf("Done!\n\n");
       }
-      else if(option == 48) { /* 0 */
+      else if(option == 114) { /* r */
         printf("\n Resetting Network\n");
         xbee_cmd_simple(&xdev, "NR", 0);
       }
-      else if(option == 98 || option == 66) { /* b || B */
+      else if(option == 98 ) { /* b */
         sys_app_banner();
-      }
-      else if(option == 104 || option == 72) { /* h || H */
-
       }
       else {
         puts("-------------------------------------");
         puts("|              H E L P              |");
         puts("-------------------------------------");
         puts("[1] - Print Operating PAN ID");
-        puts("[2] - Init additional radio settings");
-        puts("[0] - Local network reset");
+        puts("[2] - Print Operating PAN (16-BIT) ID");
+        puts("[3] - Print PAN Network Address");
+        puts("[s] - Init additional radio settings");
+        puts("[b] - Print Banner");
+        puts("[r] - Local network reset");
         puts("");
       }
       printf("> ");

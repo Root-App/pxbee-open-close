@@ -9,7 +9,7 @@
 #define __XBEE_CONFIG_H_
 
 /* Project definitions */
-#define APP_VERSION_STRING              "OpenClose v0.0.1"
+#define APP_VERSION_STRING              "Occupied v0.0.1"
 #define CONFIG_XBEE_ZB
 #define CONFIG_XBEE_SMT
 #define CONFIG_XBEE_S2C
@@ -48,6 +48,7 @@
 #define ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
 #define ENABLE_XBEE_HANDLE_RX
 #define ENABLE_OTA_UPDATE
+//#define TRIGGER_FW_UPDATE               "12345"
 
 /* uart0 component */
 #define ENABLE_UART
@@ -61,8 +62,8 @@
 #define ENABLE_STDIO_PRINTF_SCANF       1
 
 /* xbee_config0 component */
-//#define XBEE_ATCMD_PARAM_ID             "0123456789ABCDEF"
-#define XBEE_ATCMD_PARAM_NI             "PROGRAMMABLE TEST 1"
+#define XBEE_ATCMD_PARAM_SC             0x7FFF
+#define XBEE_ATCMD_PARAM_NI             "OCCUPIED"
 
 /* Used pins macros */
 #define XPIN_28_USED

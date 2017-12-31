@@ -11,6 +11,7 @@
 
 /* Ignore On command received via Broadcast message */
 #define PXBEE_TRIGGER_IGNORE_BROADCAST
+#define ZIGBEE_ZDO_VERBOSE
 
 #include <zigbee/zdo.h>
 
