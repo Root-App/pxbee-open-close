@@ -80,20 +80,12 @@ all:	start cpu drivers misc pan link burn
 start:	$(OUTPUT) \
 	$(OUTPUT)/start08.o \
 	$(OUTPUT)/xbee_cmd_callback.o \
-	$(OUTPUT)/default_cluster_callback.o \
-	$(OUTPUT)/rx_cluster_callback.o \
 	$(OUTPUT)/main.o
 
 $(OUTPUT)/start08.o: ./src/start08.c
 	$(CC) $(CFLAGS) -ObjN="$@" -Lm="$@.d" -LmCfg=xilmou $<
 
 $(OUTPUT)/xbee_cmd_callback.o: ./src/lib/xbee_cmd_callback.c
-	$(CC) $(CFLAGS) -ObjN="$@" -Lm="$@.d" -LmCfg=xilmou $<
-
-$(OUTPUT)/default_cluster_callback.o: ./src/lib/default_cluster_callback.c
-	$(CC) $(CFLAGS) -ObjN="$@" -Lm="$@.d" -LmCfg=xilmou $<
-
-$(OUTPUT)/rx_cluster_callback.o: ./src/lib/rx_cluster_callback.c
 	$(CC) $(CFLAGS) -ObjN="$@" -Lm="$@.d" -LmCfg=xilmou $<
 
 $(OUTPUT)/main.o: ./src/main.c
@@ -298,8 +290,6 @@ link:
 	"$(OUTPUT)/pan/zigbee/zigbee_zdo.o" \
 	"$(OUTPUT)/start08.o" \
 	"$(OUTPUT)/xbee_cmd_callback.o" \
-	"$(OUTPUT)/rx_cluster_callback.o" \
-	"$(OUTPUT)/default_cluster_callback.o" \
 	"$(OUTPUT)/main.o" \
 	"$(HC08C)/lib/$(HC08C_LIB)"\) \
 	-O"$(OUTPUT)/$(APP_NAME).abs"
