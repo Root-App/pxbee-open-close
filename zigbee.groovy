@@ -13,7 +13,7 @@
  */
 
 metadata {
-    definition (name: "ZigBee OpenClose", namespace: "root", author: "Root", ocfDeviceType: "oic.d.switch", minHubCoreVersion: '000.019.00012') {
+    definition (name: "Root Occupied", namespace: "root", author: "Root", ocfDeviceType: "oic.d.switch", minHubCoreVersion: '000.019.00012') {
         capability "Actuator"
         capability "Configuration"
         capability "Refresh"
@@ -21,7 +21,7 @@ metadata {
         capability "Contact Sensor"
         capability "Health Check"
 
-        fingerprint profileId: "0104", inClusters: "0000, 0006", manufacturer: "Root", model: "Occupied", deviceJoinName: "Is Occupied"
+        fingerprint profileId: "0104", inClusters: "0000, 0006", manufacturer: "Root", model: "Occupied", deviceJoinName: "Root Occupied"
     }
 
     // simulator metadata
