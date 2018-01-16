@@ -48,6 +48,8 @@
 #define ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
 #define ENABLE_XBEE_HANDLE_RX
 #define ENABLE_OTA_UPDATE
+#define PXBEE_TRIGGER_IGNORE_BROADCAST
+#define ZIGBEE_ZDO_VERBOSE
 //#define TRIGGER_FW_UPDATE               "12345"
 
 /* uart0 component */
@@ -64,6 +66,7 @@
 /* xbee_config0 component */
 #define XBEE_ATCMD_PARAM_SC             0x7FFF
 #define XBEE_ATCMD_PARAM_NI             "OCCUPIED"
+// #define XBEE_ATCMD_PARAM_ID             0x7FFF
 
 /* Used pins macros */
 #define XPIN_28_USED

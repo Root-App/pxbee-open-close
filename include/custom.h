@@ -23,7 +23,7 @@ extern wpan_ep_state_t custom_ha_ep_state;
 
  /* With this macro the prototypes of clusters' callbacks and extern variables are included in endpoints.c
   * Array custom_ep_data_clusters[] is declared in main.c
-  * Function custom_ep_default_cluster() is implemented in main.c */
+  * Function default_cluster_callback() is implemented in default_cluster_callback.c */
 #define EP_INCLUDE_DECLARATIONS extern const wpan_cluster_table_entry_t custom_ep_clusters[];  \
                                 int default_cluster_callback(const wpan_envelope_t FAR *, void FAR *);
 

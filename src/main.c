@@ -33,6 +33,8 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 }
 #endif
 
+int tx_sensor_state ();
+
 // Custom profile and cluster implementation
 #define CUSTOM_NULL_CLUSTER    0x0000
 #define CUSTOM_SENSOR_CLUSTER  0x0006
@@ -40,12 +42,47 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 #if defined(RTC_ENABLE_PERIODIC_TASK)
 void rtc_periodic_task(void)
 {
-	// printf("Sensor is: %d\n", !gpio_get(SENSOR));
+	if(gpio_get(LED) == gpio_get(SENSOR)) {
+		printf("Sensor is: %d\n", !gpio_get(SENSOR));
+  	// tx_sensor_state();
+	}
 	gpio_set(LED, !gpio_get(SENSOR));
 }
 #endif
 
-int rx_cluster_callback ( const xbee_cmd_response_t FAR *response);
+int tx_sensor_state()
+{
+	//TODO Make this sensor state send work propery
+  zcl_command_t zcl;
+  uint8_t                 *start_response;
+  uint8_t									*end_response;
+  PACKED_STRUCT {
+    zcl_header_response_t	header;
+    uint8_t								buffer[20];
+  } response;
+
+
+  printf("Handling response for switch state read\n");
+
+  response.header.command = ZCL_CMD_READ_ATTRIB_RESP;
+  start_response = (uint8_t *)&response + zcl_build_header(&response.header, &zcl);
+  end_response = response.buffer;
+
+  *end_response++ = 0x00;
+  *end_response++ = 0x00;
+  *end_response++ = ZCL_STATUS_SUCCESS;
+  *end_response++ = ZCL_TYPE_LOGICAL_BOOLEAN;
+  if (gpio_get(SENSOR)) {
+    *end_response++ = 0x01;
+  }else{
+    *end_response++ = 0x00;
+  }
+
+  printf("Response length: %02X\n", end_response - start_response);
+  if(zcl_send_response(&zcl, start_response, end_response - start_response) == 0) {
+    printf("Response sent successfully\n");
+  }
+}
 
 const wpan_cluster_table_entry_t custom_ep_clusters[] = {
     {CUSTOM_NULL_CLUSTER, NULL, NULL, WPAN_CLUST_FLAG_INPUT},
