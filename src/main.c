@@ -1,62 +1,29 @@
-/***** XBEE APPLICATION PROJECT *****
-https://www.digi.com/resources/documentation/digidocs/pdfs/90002002.pdf
-http://exsilium.github.io/xbee-sdk-doc/group__api__gpios__gpio.html
-
-SMT PINOUT
-
-1 GND - - Ground.
-2 VCC - - Power supply.
-3 DOUT /DIO13 Both Output UART data out /GPIO.
-4 DIN / CONFIG /DIO14 Both Input UART data in /GPIO.
-5 DIO12 Both GPIO.
-6 RESET Input Device reset.
-7 RSSI PWM/DIO10 Both Output RX signal strength Indicator /GPIO.
-8 PWM1/DIO11 Both Disabled Pulse width modulator/GPIO.
-9 [reserved] - Disabled Do not connect.
-10 DTR/SLEEP_RQ /DIO8 Both Input Pin sleep control Line/GPIO.
-11 GND - - Ground.
-12 SPI_ATTN/ BOOTMODE/DIO19 Output Output Serial peripheral interface attention . Do not tie low on reset.
-13 GND - - Ground.
-14 SPI_CLK /DIO18 Input Input Serial peripheral interface clock/GPIO.
-15 SPI_SSEL/DIO17 Input Input Serial peripheral interface not select/GPIO.
-16 SPI_MOSI/DIO16 Input Input Serial peripheral interface data in/GPIO.
-17 SPI_MISO/DIO15 Output Output Serial peripheral interface data out/GPIO. Hardware Pin signals for the surface-mount module XBee/XBee-PRO® S2C Zigbee® RF Module 26
-18 [reserved]* - Disabled Do not connect.
-19 [reserved]* - Disabled Do not connect.
-20 [reserved]* - Disabled Do not connect.
-21 [reserved]* - Disabled Do not connect.
-22 GND - - Ground.
-23 [reserved] - Disabled Do not connect.
-24 DIO4 Both Disabled GPIO.
-25 CTS/DIO7 Both Output Clear to send flow control/GPIO.
-26 ON/SLEEP/DIO9 Both Output Device status indicator/GPIO 27 VREF Input - Not used for EM357. Used for programmable secondary processor. For compatibility with other XBee devices, we recommend connecting this pin to the voltage reference if analog sampling is desired. Otherwise, connect to GND.
-28 ASSOCIATE/DIO5 Both Output Associate Indicator/GPIO.
-29 RTS/DIO6 Both Input Request to send flow control/GPIO.
-30 AD3/DIO3 Both Disabled Analog input/GPIO.
-31 AD2/DIO2 Both Disabled Analog input/GPIO Hardware Pin signals for the through-hole module XBee/XBee-PRO® S2C Zigbee® RF Module 27
-32 AD1/DIO1 Both Disabled Analog input/GPIO.
-33 AD0 /DIO0 Both Input Analog input / GPIO / Commissioning button.
-34 [reserved] - Disabled Do not connect.
-35 GND - - Ground.
-36 RF Both - RF I/O for RF pad variant.
-37 [reserved] - Disabled Do not connect
- ************************************/
-
 #include <xbee_config.h>
 #include <types.h>
 #include <xbee_cmd_callback.h>
 #include <rx_cluster_callback.h>
 // #include <default_cluster_callback.h>
 
+#ifdef ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
+void node_discovery_callback(xbee_dev_t *xbee, const xbee_node_id_t *node_id)
+{
+	puts("Received ND Frame");
+	/* This function is called every time a node is discovered, either by
+	 * receiving a NodeID message or because a node search was started with
+	 * function xbee_disc_discover_nodes() */
+	return;
+}
+#endif
+
 #ifdef ENABLE_XBEE_HANDLE_RX
 int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 {
-	// char addrbuf[ADDR64_STRING_LENGTH];
+	char addrbuf[ADDR64_STRING_LENGTH];
 
 	puts("Received Simple Frame");
 	puts("---------------------");
 	sys_watchdog_reset();
-	// printf("Source     : %s\n", addr64_format(addrbuf, &envelope->ieee_address));
+	printf("Source     : %s\n", addr64_format(addrbuf, &envelope->ieee_address));
 	printf("Network    : %04x\n", be16toh(envelope->network_address));
 	printf("Data length: %u\n", envelope->length);
 	sys_watchdog_reset();

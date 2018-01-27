@@ -44,14 +44,15 @@
 #define GPIO_CFG_DRV_STR_24              GPIO_CFG_DRV_STR_LOW
 
 /* network0 component */
+#define ENABLE_XBEE_HANDLE_REMOTE_AT
+#define ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
 #define ENABLE_XBEE_HANDLE_RX
 #define ENABLE_OTA_UPDATE
-//#define TRIGGER_FW_UPDATE               "12345"
 
 /* uart0 component */
 #define ENABLE_UART
 #define UART_CFG_MODE_2W                1
-#define UART_CFG_BAUDRATE               9600
+#define UART_CFG_BAUDRATE               115200
 #define UART_CFG_PAR_EN                 UART_CFG_PARITY_DIS
 #define UART_CFG_PAR_VAL                UART_CFG_PARITY_ODD
 #define UART_CFG_BITS                   UART_CFG_BITS_8
@@ -64,14 +65,15 @@
 #define XBEE_ATCMD_PARAM_NI             "PROGRAMMABLE TEST 1"
 
 /* Used pins macros */
-#define XPIN_3_USED
-#define XPIN_4_USED
-#define XPIN_5_USED
-#define XPIN_6_USED
-#define XPIN_7_USED
-#define XPIN_9_USED
 #define XPIN_28_USED
 #define XPIN_33_USED
+#define XPIN_6_USED
+#define XPIN_9_USED
+#define XPIN_7_USED
+#define XPIN_4_USED
+#define XPIN_3_USED
+#define XPIN_5_USED
+#define XPIN_8_USED
 #define XPIN_24_USED
 
 /* Components includes */

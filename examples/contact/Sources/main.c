@@ -1,12 +1,12 @@
 /***** XBEE APPLICATION PROJECT *****
- *
- * Auto-generated header with information about the
- * relation between the XBee module pins and the
+ * 
+ * Auto-generated header with information about the 
+ * relation between the XBee module pins and the 
  * project components.
- *
+ * 
  ************ XBEE LAYOUT ***********
- *
- * This layout represents the XBee ZB (S2C) module
+ * 
+ * This layout represents the XBee ZB (S2C) module 
  * selected for the project with its pin distribution:
  *            ________________________
  *           |                        |- XPIN37
@@ -35,20 +35,20 @@
  *             |  |  XPIN16
  *             |  XPIN15
  *             XPIN14
- *
+ * 
  ************ PINS LEGEND ***********
- *
- * The following list displays all the XBee Module pins
+ * 
+ * The following list displays all the XBee Module pins 
  * with the project component which is using each one:
- *
+ * 
  *   XPIN1 = GND
  *   XPIN2 = VCC
  *   XPIN3 = uart0 [TX Pin]
  *   XPIN4 = uart0 [RX Pin]
- *   XPIN5 = <<UNUSED>>
+ *   XPIN5 = pwm0 [PWM Pin]
  *   XPIN6 = special0 [Reset Pin]
  *   XPIN7 = special0 [RSSI PWM Pin]
- *   XPIN8 = <<UNUSED>>
+ *   XPIN8 = adc0 [ADC Pin]
  *   XPIN9 = special0 [BKGD Pin]
  *   XPIN10 = <<UNUSED>>
  *   XPIN11 = GND
@@ -64,7 +64,7 @@
  *   XPIN21 = Do not Connect
  *   XPIN22 = GND
  *   XPIN23 = Do not Connect
- *   XPIN24 = <<UNUSED>>
+ *   XPIN24 = gpio0 [GPIO Pin]
  *   XPIN25 = <<UNUSED>>
  *   XPIN26 = <<UNUSED>>
  *   XPIN27 = VCC REF
@@ -81,29 +81,38 @@
  *
  ************************************/
 
-
 #include <xbee_config.h>
-#include <system.h>
-#include <pan_init.h>
-#include <debug.h>
-#include <xbee/byteorder.h>
-#include <xbee/atcmd.h>
-#include <wpan/types.h>
+#include <types.h>
+
+#if defined(RTC_ENABLE_PERIODIC_TASK)
+void rtc_periodic_task(void)
+{
+    /*
+     * Function call every RTC_CFG_PERIODIC_TASK_PERIOD * 8 ms.
+     * This function is called from the timer ISR, please be brief
+     * and exit, or just set a flag and do your home work in the 
+     * main loop
+     */
+
+    /* Implement your code here */
+}
+#endif
+
+#ifdef ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
+void node_discovery_callback(xbee_dev_t *xbee, const xbee_node_id_t *node_id)
+{
+	/* This function is called every time a node is discovered, either by
+	 * receiving a NodeID message or because a node search was started with
+	 * function xbee_disc_discover_nodes() */
+	return;
+}
+#endif
+
 
 #ifdef ENABLE_XBEE_HANDLE_RX
 int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 {
-	char addrbuf[ADDR64_STRING_LENGTH];
-
-	puts("Received Simple Frame");
-	puts("---------------------");
-	sys_watchdog_reset();
-	printf("Source     : %s\n", addr64_format(addrbuf, &envelope->ieee_address));
-	printf("Network    : %04x\n", be16toh(envelope->network_address));
-	printf("Data length: %u\n", envelope->length);
-	sys_watchdog_reset();
-	dump(envelope->payload, envelope->length);
-	puts("\n");
+    /* Add your code here... */
 
 	return 0;
 }
@@ -115,11 +124,8 @@ void main(void)
 	sys_xbee_init();
 	sys_app_banner();
 
-	/* Example recommends router radio firmware to prevent the module from sleeping */
-	if (!CHECK_NODETYPE(XBEE_NODETYPE_ROUTER))
-		printf("WARNING: Example recommends router radio firmware!!\n\n");
-
 	for (;;) {
+		/* Write your code here... */
 		sys_watchdog_reset();
 		sys_xbee_tick();
 	}
