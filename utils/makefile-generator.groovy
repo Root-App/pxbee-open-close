@@ -1,3 +1,4 @@
+// I am sure there is a much better way to do this right in the makefile, don't judge me.
 def files = [:]
 new File("./src").eachFileMatch(~/.*\.c/) { file ->
     files.put "src/$file.name", file.name.replace('.c','.o')

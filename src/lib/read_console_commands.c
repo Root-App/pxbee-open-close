@@ -59,29 +59,20 @@ int read_console_commands(){
       printf("Resetting Network\n");
       xbee_cmd_simple(&xdev, "NR", 0);
     }
-    else if(option == 52) { /* 4 */
-      printf("Setting AO to 1\n");
-      xbee_cmd_simple(&xdev, "AO", 1);
-			xbee_cmd_execute(&xdev, "WR", NULL, 0);
-		}
-    else if(option == 53) { /* 5 */
-      printf("Setting AO to 3\n");
-      xbee_cmd_simple(&xdev, "AO", 3);
-      xbee_cmd_execute(&xdev, "WR", NULL, 0);
-    }
     else if(option == 98 ) { /* b */
       sys_app_banner();
     }
-    else {
+		else if(option == 104 || option == 72) { /* h || H */
+			//This is required to avoid a feedback loop
+		}
+		else {
       puts("-------------------------------------");
       puts("|              H E L P              |");
       puts("-------------------------------------");
       puts("[1] - Print Operating PAN ID");
       puts("[2] - Print Operating PAN (16-BIT) ID");
       puts("[3] - Print PAN Network Address");
-      puts("[4] - Set AO to 1");
-      puts("[5] - Set AO to 3");
-      puts("[s] - Init additional radio settings");
+      puts("[s] - Set additional radio settings");
       puts("[b] - Print Banner");
       puts("[r] - Local network reset");
       puts("");
