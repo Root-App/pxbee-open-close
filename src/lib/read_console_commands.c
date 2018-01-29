@@ -2,6 +2,20 @@
 #include <xbee_config.h>
 #include <xbee_cmd_callback.h>
 
+int read_xbee_command(const char* command);
+
+int read_xbee_command(const char* command) {
+	int16_t request;
+
+	request = xbee_cmd_create(&xdev, command);
+	if (request < 0) {
+		printf( "Error creating request: %d (%" PRIsFAR ") \n", request, strerror( -request));
+	} else  {
+		xbee_cmd_set_callback(request, xbee_cmd_callback, NULL);
+		xbee_cmd_send(request);
+	}
+}
+
 int read_console_commands(){
 	uint8_t option;
 
@@ -33,6 +47,17 @@ int read_console_commands(){
       	xbee_cmd_send(request);
     	}
 		}
+    else if(option == 103) { /* g */
+      // Additionnal XBee settings
+			read_xbee_command("AP");
+			read_xbee_command("AO");
+			read_xbee_command("ZS");
+			read_xbee_command("NJ");
+			read_xbee_command("NH");
+			read_xbee_command("EE");
+			read_xbee_command("EO");
+			read_xbee_command("KY");
+    }
     else if(option == 115) { /* s */
       // Additionnal XBee settings
       printf("\n Setting additional radio settings: ZS ");
@@ -69,6 +94,11 @@ int read_console_commands(){
       xbee_cmd_simple(&xdev, "AO", 3);
       xbee_cmd_execute(&xdev, "WR", NULL, 0);
     }
+    else if(option == 54) { /* 6 */
+      printf("Setting AO to 7\n");
+      xbee_cmd_simple(&xdev, "AO", 7);
+      xbee_cmd_execute(&xdev, "WR", NULL, 0);
+    }
     else if(option == 98 ) { /* b */
       sys_app_banner();
     }
@@ -81,7 +111,9 @@ int read_console_commands(){
       puts("[3] - Print PAN Network Address");
       puts("[4] - Set AO to 1");
       puts("[5] - Set AO to 3");
-      puts("[s] - Init additional radio settings");
+      puts("[6] - Set AO to 7");
+      puts("[s] - Set additional radio settings");
+      puts("[g] - Get additional radio settings");
       puts("[b] - Print Banner");
       puts("[r] - Local network reset");
       puts("");

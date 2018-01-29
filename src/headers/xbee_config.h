@@ -15,6 +15,27 @@
 #define CONFIG_XBEE_S2C
 #define CONFIG_XBEE_FLASH_LEN           32
 
+/* Additional XBee settings */
+#define XBEE_PARAM_ZS       2
+#define XBEE_PARAM_NJ       0x5A
+#define XBEE_PARAM_NH       0x1E
+#define XBEE_PARAM_NO       3
+#define XBEE_PARAM_AP       1
+#define XBEE_PARAM_EE       1
+#define XBEE_PARAM_EO       1
+#define XBEE_PARAM_KY       "5A6967426565416C6C69616E63653039"
+/* Reported manufacturer and model in basic cluster
+*
+* For SmartThings local execution without custom device handler, set the following:
+*/
+// #define ZCL_MANUFACTURER "Leviton"
+// #define ZCL_MODEL        "ZSS-10"
+ #define ZCL_MANUFACTURER    "Root"
+ #define ZCL_MODEL           "Occupied"
+
+/* Ignore On command received via Broadcast message */
+#define PXBEE_TRIGGER_IGNORE_BROADCAST
+#define ZIGBEE_ZDO_VERBOSE
 /* system0 component */
 #define SYS_CFG_CLK_48_MHz
 #define SYS_CFG_BUSCLK_SYSCLK_DIV2
@@ -81,7 +102,7 @@
 #define XPIN_24_USED
 
 /* Components includes */
-#include <custom.h>
+#include <config.h>
 #include <system.h>
 #include <rtc.h>
 #include <gpios.h>
