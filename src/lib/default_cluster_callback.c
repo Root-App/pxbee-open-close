@@ -1,10 +1,11 @@
 #include <types.h>
 #include <xbee_config.h>
+#include <utils.h>
 
 int default_cluster_callback(const wpan_envelope_t FAR *envelope, void FAR *context)
 {
   zcl_command_t zcl;
-  
+
   uint8_t *payload_pointer = envelope->payload;
   int i = 0;
 
@@ -73,11 +74,8 @@ int default_cluster_callback(const wpan_envelope_t FAR *envelope, void FAR *cont
           *end_response++ = ZCL_STATUS_SUCCESS;
           *end_response++ = 0x42;
           *end_response++ = 0x05; // Length of data
-          *end_response++ = 'P';
-          *end_response++ = 'X';
-          *end_response++ = 'B';
-          *end_response++ = 'e';
-          *end_response++ = 'e';
+          end_response = appendStringChar(end_response, ZCL_MANUFACTURER);
+
 
           printf("Response length: %02X\n", end_response - start_response);
           if(zcl_send_response(&zcl, start_response, end_response - start_response) == 0) {
@@ -92,13 +90,7 @@ int default_cluster_callback(const wpan_envelope_t FAR *envelope, void FAR *cont
           *end_response++ = ZCL_STATUS_SUCCESS;
           *end_response++ = 0x42;
           *end_response++ = 0x07; // Length of data
-          *end_response++ = 'T';
-          *end_response++ = 'r';
-          *end_response++ = 'i';
-          *end_response++ = 'g';
-          *end_response++ = 'g';
-          *end_response++ = 'e';
-          *end_response++ = 'r';
+          end_response = appendStringChar(end_response, ZCL_MODEL);
 
           printf("Response length: %02X\n", end_response - start_response);
           if(zcl_send_response(&zcl, start_response, end_response - start_response) == 0) {

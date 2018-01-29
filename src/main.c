@@ -1,6 +1,5 @@
 #include <xbee_config.h>
 #include <types.h>
-#include <xbee_cmd_callback.h>
 #include <rx_cluster_callback.h>
 // #include <default_cluster_callback.h>
 
@@ -34,6 +33,8 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 }
 #endif
 
+int tx_sensor_state ();
+
 // Custom profile and cluster implementation
 #define CUSTOM_NULL_CLUSTER    0x0000
 #define CUSTOM_SENSOR_CLUSTER  0x0006
@@ -41,11 +42,47 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 #if defined(RTC_ENABLE_PERIODIC_TASK)
 void rtc_periodic_task(void)
 {
-	// printf("Sensor is: %d\n", !gpio_get(SENSOR));
+	if(gpio_get(LED) == gpio_get(SENSOR)) {
+		printf("Sensor is: %d\n", !gpio_get(SENSOR));
+  	// tx_sensor_state();
+	}
 	gpio_set(LED, !gpio_get(SENSOR));
 }
 #endif
 
+int tx_sensor_state()
+{
+	//TODO Make this sensor state send work propery
+  zcl_command_t zcl;
+  uint8_t                 *start_response;
+  uint8_t									*end_response;
+  PACKED_STRUCT {
+    zcl_header_response_t	header;
+    uint8_t								buffer[20];
+  } response;
+
+
+  printf("Handling response for switch state read\n");
+
+  response.header.command = ZCL_CMD_READ_ATTRIB_RESP;
+  start_response = (uint8_t *)&response + zcl_build_header(&response.header, &zcl);
+  end_response = response.buffer;
+
+  *end_response++ = 0x00;
+  *end_response++ = 0x00;
+  *end_response++ = ZCL_STATUS_SUCCESS;
+  *end_response++ = ZCL_TYPE_LOGICAL_BOOLEAN;
+  if (gpio_get(SENSOR)) {
+    *end_response++ = 0x01;
+  }else{
+    *end_response++ = 0x00;
+  }
+
+  printf("Response length: %02X\n", end_response - start_response);
+  if(zcl_send_response(&zcl, start_response, end_response - start_response) == 0) {
+    printf("Response sent successfully\n");
+  }
+}
 
 const wpan_cluster_table_entry_t custom_ep_clusters[] = {
     {CUSTOM_NULL_CLUSTER, NULL, NULL, WPAN_CLUST_FLAG_INPUT},
@@ -55,79 +92,14 @@ const wpan_cluster_table_entry_t custom_ep_clusters[] = {
 
 void main(void)
 {
-	uint8_t option;
-
 	sys_hw_init();
 	sys_xbee_init();
 	sys_app_banner();
 
-  gpio_config(SENSOR, GPIO_CFG_PULL_UP_DIS);
-
 	printf("> ");
 
   for (;;) {
-
-		/* Interactive menu for action control */
-    if(uart_bytes_in_rx_buffer() > 0) {
-      uart_read(&option, 1);
-      printf("Got char: %u\n", option);
-      if(option == 49) { /* 1 */
-        int16_t request;
-
-        printf("\nRequesting Operating PAN ID (OP)\n");
-        request = xbee_cmd_create(&xdev, "OP");
-        if (request < 0) {
-		      printf( "Error creating request: %d (%" PRIsFAR ") \n", request, strerror( -request));
-	      }
-	      else  {
-	        xbee_cmd_set_callback(request, xbee_cmd_callback, NULL);
-	        xbee_cmd_send(request);
-	      }
-      }
-      else if(option == 50) { /* 2 */
-        // Additionnal XBee settings
-        printf("\n Setting additional radio settings: ZS ");
-        xbee_cmd_simple(&xdev, "ZS", XBEE_PARAM_ZS);
-        printf("NJ ");
-        xbee_cmd_simple(&xdev, "NJ", XBEE_PARAM_NJ);
-        printf("NH ");
-        xbee_cmd_simple(&xdev, "NH", XBEE_PARAM_NH);
-        printf("NO ");
-        xbee_cmd_simple(&xdev, "NO", XBEE_PARAM_NO);
-        printf("EE ");
-        xbee_cmd_simple(&xdev, "EE", XBEE_PARAM_EE);
-        printf("EO ");
-        xbee_cmd_simple(&xdev, "EO", XBEE_PARAM_EO);
-        printf("AP ");
-        xbee_cmd_simple(&xdev, "AP", XBEE_PARAM_AP);
-        printf("KY ");
-        xbee_cmd_execute(&xdev, "KY", XBEE_PARAM_KY, (sizeof(XBEE_PARAM_KY) - 1) / sizeof(char));
-        printf("WR ");
-        xbee_cmd_execute(&xdev, "WR", NULL, 0);
-        printf("Done!\n\n");
-      }
-      else if(option == 48) { /* 0 */
-        printf("\n Resetting Network\n");
-        xbee_cmd_simple(&xdev, "NR", 0);
-      }
-      else if(option == 98 || option == 66) { /* b || B */
-        sys_app_banner();
-      }
-      else if(option == 104 || option == 72) { /* h || H */
-
-      }
-      else {
-        puts("-------------------------------------");
-        puts("|              H E L P              |");
-        puts("-------------------------------------");
-        puts("[1] - Print Operating PAN ID");
-        puts("[2] - Init additional radio settings");
-        puts("[0] - Local network reset");
-        puts("");
-      }
-      printf("> ");
-    }
-    /* End of interactive menu */
+		read_console_commands();
 
 		sys_watchdog_reset();
 		sys_xbee_tick();
