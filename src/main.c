@@ -24,15 +24,42 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 // Custom profile and cluster implementation
 #define CUSTOM_NULL_CLUSTER    0x0000
 #define CUSTOM_SENSOR_CLUSTER  0x0006
+#define DEFAULT_PROFILE_ID			WPAN_PROFILE_DIGI
+#define DEFAULT_CLUSTER_ID			DIGI_CLUST_SERIAL
+
+wpan_envelope_t envelope;
+char tx_buffer[5] = "";
 
 #if defined(RTC_ENABLE_PERIODIC_TASK)
 void rtc_periodic_task(void)
 {
+
 	if(gpio_get(LED) == gpio_get(SENSOR)) {
-		printf("Sensor is: %d\n", !gpio_get(SENSOR));
-  	// tx_sensor_state();
+		gpio_set(LED, !gpio_get(SENSOR));
+
+		wpan_envelope_create(&envelope, &xdev.wpan_dev, WPAN_IEEE_ADDR_COORDINATOR,	WPAN_NET_ADDR_UNDEFINED);
+
+		tx_buffer[0] = 0x00;
+		tx_buffer[1] = 0x00;
+		tx_buffer[2] = ZCL_STATUS_SUCCESS;
+		tx_buffer[3] = ZCL_TYPE_LOGICAL_BOOLEAN;
+		if (gpio_get(SENSOR)) {
+			tx_buffer[4] = 0x01;
+		}else{
+			tx_buffer[4] = 0x00;
+		}
+		envelope.payload = tx_buffer;
+		envelope.options = 0x00;
+
+		envelope.dest_endpoint = 0x01;
+		envelope.source_endpoint = CUSTOM_ENDPOINT;
+		envelope.profile_id = CUSTOM_EP_PROFILE;
+		envelope.cluster_id = CUSTOM_SENSOR_CLUSTER;
+
+		envelope.length = 5;
+
+		wpan_envelope_send(&envelope);
 	}
-	gpio_set(LED, !gpio_get(SENSOR));
 }
 #endif
 
@@ -49,6 +76,8 @@ void main(void)
 	sys_app_banner();
 
 	printf("> ");
+
+	gpio_set(LED, !gpio_get(SENSOR));
 
   for (;;) {
 		read_console_commands();

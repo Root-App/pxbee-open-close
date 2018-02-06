@@ -59,7 +59,7 @@
 #define LED                              XPIN_24
 #define GPIO_CFG_DIR_24                  GPIO_CFG_OUTPUT
 #define GPIO_CFG_PULL_UP_EN_24           GPIO_CFG_PULL_UP_DIS
-#define GPIO_CFG_SLEW_RATE_EN_24         GPIO_CFG_SLEW_RATE_EN
+#define GPIO_CFG_SLEW_RATE_EN_24         GPIO_CFG_SLEW_RATE_DIS
 #define GPIO_CFG_DRV_STR_24              GPIO_CFG_DRV_STR_LOW
 
 /* network0 component */

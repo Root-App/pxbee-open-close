@@ -64,8 +64,7 @@ int read_console_commands(){
     }
 		else if(option == 104 || option == 72) { /* h || H */
 			//This is required to avoid a feedback loop
-		}
-		else {
+		}	else if(option == 13) { /* enter */
       puts("-------------------------------------");
       puts("|              H E L P              |");
       puts("-------------------------------------");
