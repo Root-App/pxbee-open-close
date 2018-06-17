@@ -1,19 +1,6 @@
 #include <xbee_config.h>
 #include <types.h>
-#include <xbee_cmd_callback.h>
 #include <rx_cluster_callback.h>
-// #include <default_cluster_callback.h>
-
-#ifdef ENABLE_XBEE_HANDLE_ND_RESPONSE_FRAMES
-void node_discovery_callback(xbee_dev_t *xbee, const xbee_node_id_t *node_id)
-{
-	puts("Received ND Frame");
-	/* This function is called every time a node is discovered, either by
-	 * receiving a NodeID message or because a node search was started with
-	 * function xbee_disc_discover_nodes() */
-	return;
-}
-#endif
 
 #ifdef ENABLE_XBEE_HANDLE_RX
 int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
@@ -37,15 +24,44 @@ int xbee_transparent_rx(const wpan_envelope_t FAR *envelope, void FAR *context)
 // Custom profile and cluster implementation
 #define CUSTOM_NULL_CLUSTER    0x0000
 #define CUSTOM_SENSOR_CLUSTER  0x0006
+#define DEFAULT_PROFILE_ID			WPAN_PROFILE_DIGI
+#define DEFAULT_CLUSTER_ID			DIGI_CLUST_SERIAL
+
+wpan_envelope_t envelope;
+char tx_buffer[5] = "";
 
 #if defined(RTC_ENABLE_PERIODIC_TASK)
 void rtc_periodic_task(void)
 {
-	// printf("Sensor is: %d\n", !gpio_get(SENSOR));
-	gpio_set(LED, !gpio_get(SENSOR));
+
+	if(gpio_get(LED) == gpio_get(SENSOR)) {
+		gpio_set(LED, !gpio_get(SENSOR));
+
+		wpan_envelope_create(&envelope, &xdev.wpan_dev, WPAN_IEEE_ADDR_COORDINATOR,	WPAN_NET_ADDR_UNDEFINED);
+
+		tx_buffer[0] = 0x00;
+		tx_buffer[1] = 0x00;
+		tx_buffer[2] = ZCL_STATUS_SUCCESS;
+		tx_buffer[3] = ZCL_TYPE_LOGICAL_BOOLEAN;
+		if (gpio_get(SENSOR)) {
+			tx_buffer[4] = 0x01;
+		}else{
+			tx_buffer[4] = 0x00;
+		}
+		envelope.payload = tx_buffer;
+		envelope.options = 0x00;
+
+		envelope.dest_endpoint = 0x01;
+		envelope.source_endpoint = CUSTOM_ENDPOINT;
+		envelope.profile_id = CUSTOM_EP_PROFILE;
+		envelope.cluster_id = CUSTOM_SENSOR_CLUSTER;
+
+		envelope.length = 5;
+
+		wpan_envelope_send(&envelope);
+	}
 }
 #endif
-
 
 const wpan_cluster_table_entry_t custom_ep_clusters[] = {
     {CUSTOM_NULL_CLUSTER, NULL, NULL, WPAN_CLUST_FLAG_INPUT},
@@ -55,79 +71,16 @@ const wpan_cluster_table_entry_t custom_ep_clusters[] = {
 
 void main(void)
 {
-	uint8_t option;
-
 	sys_hw_init();
 	sys_xbee_init();
 	sys_app_banner();
 
-  gpio_config(SENSOR, GPIO_CFG_PULL_UP_DIS);
-
 	printf("> ");
 
+	gpio_set(LED, !gpio_get(SENSOR));
+
   for (;;) {
-
-		/* Interactive menu for action control */
-    if(uart_bytes_in_rx_buffer() > 0) {
-      uart_read(&option, 1);
-      printf("Got char: %u\n", option);
-      if(option == 49) { /* 1 */
-        int16_t request;
-
-        printf("\nRequesting Operating PAN ID (OP)\n");
-        request = xbee_cmd_create(&xdev, "OP");
-        if (request < 0) {
-		      printf( "Error creating request: %d (%" PRIsFAR ") \n", request, strerror( -request));
-	      }
-	      else  {
-	        xbee_cmd_set_callback(request, xbee_cmd_callback, NULL);
-	        xbee_cmd_send(request);
-	      }
-      }
-      else if(option == 50) { /* 2 */
-        // Additionnal XBee settings
-        printf("\n Setting additional radio settings: ZS ");
-        xbee_cmd_simple(&xdev, "ZS", XBEE_PARAM_ZS);
-        printf("NJ ");
-        xbee_cmd_simple(&xdev, "NJ", XBEE_PARAM_NJ);
-        printf("NH ");
-        xbee_cmd_simple(&xdev, "NH", XBEE_PARAM_NH);
-        printf("NO ");
-        xbee_cmd_simple(&xdev, "NO", XBEE_PARAM_NO);
-        printf("EE ");
-        xbee_cmd_simple(&xdev, "EE", XBEE_PARAM_EE);
-        printf("EO ");
-        xbee_cmd_simple(&xdev, "EO", XBEE_PARAM_EO);
-        printf("AP ");
-        xbee_cmd_simple(&xdev, "AP", XBEE_PARAM_AP);
-        printf("KY ");
-        xbee_cmd_execute(&xdev, "KY", XBEE_PARAM_KY, (sizeof(XBEE_PARAM_KY) - 1) / sizeof(char));
-        printf("WR ");
-        xbee_cmd_execute(&xdev, "WR", NULL, 0);
-        printf("Done!\n\n");
-      }
-      else if(option == 48) { /* 0 */
-        printf("\n Resetting Network\n");
-        xbee_cmd_simple(&xdev, "NR", 0);
-      }
-      else if(option == 98 || option == 66) { /* b || B */
-        sys_app_banner();
-      }
-      else if(option == 104 || option == 72) { /* h || H */
-
-      }
-      else {
-        puts("-------------------------------------");
-        puts("|              H E L P              |");
-        puts("-------------------------------------");
-        puts("[1] - Print Operating PAN ID");
-        puts("[2] - Init additional radio settings");
-        puts("[0] - Local network reset");
-        puts("");
-      }
-      printf("> ");
-    }
-    /* End of interactive menu */
+		read_console_commands();
 
 		sys_watchdog_reset();
 		sys_xbee_tick();

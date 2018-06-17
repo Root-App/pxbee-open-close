@@ -46,6 +46,14 @@ The application will blink a LED connected to pin 7 with 125ms interval.
 - `include/xbee_config.h` - This is the Programmable XBEE Project settings
 - `src/main.c` - The main() loop
 
+# Additional Information
+
+S2C - https://www.digi.com/resources/documentation/digidocs/pdfs/90002002.pdf
+Grove - https://www.digi.com/resources/documentation/digidocs/pdfs/90001457-13.pdf
+SDK - http://exsilium.github.io/xbee-sdk-doc/group__api__gpios__gpio.html
+Transmit - https://www.digi.com/support/forum/46911/how-to-use-built-in-xbee-programmable-zdo-zcl-support
+Cluster ID info - http://www.zigbee.org/~zigbeeor/wp-content/uploads/2014/10/07-5123-06-zigbee-cluster-library-specification.pdf
+
 # License
 
 Source files include a header of copyright and license.
